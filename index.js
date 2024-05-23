@@ -61,10 +61,10 @@ fs.readFile(xmlFile, (err, data) => {
 				if (err) {
 					console.error(err);
 				} else {
-					console.log('Data stored successfully!');
+					return;
 				}
 			});
 		})
-		
+		console.log('Data stored successfully!');
  	});
  });
