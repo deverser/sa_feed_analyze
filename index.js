@@ -54,14 +54,17 @@ fs.readFile(xmlFile, (err, data) => {
 			console.log('SA_feed:', shopperApprovedFeed);
 			dataToStore.push(shopperApprovedFeed);
 		 });
-		console.log('Data stored.');
+		console.log('Data extracted.');
 		// Store data in MySQL database
-		db.query(`INSERT INTO shopper_approved_feed SET ?`, dataToStore, (err, results) => {
-			if (err) {
-				console.error(err);
-			} else {
-				console.log('Data stored successfully!');
-			}
-		});
+		dataToStore.forEach((merchantData) => {
+			db.query(`INSERT INTO shopper_approved_feed SET ?`, merchantData, (err, results) => {
+				if (err) {
+					console.error(err);
+				} else {
+					console.log('Data stored successfully!');
+				}
+			});
+		})
+		
  	});
  });
