@@ -67,4 +67,6 @@ fs.readFile(xmlFile, (err, data) => {
 		})
 		console.log('Data stored successfully!');
  	});
+	db.end();
+	console.log('DB connection is closed.');
  });
