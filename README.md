@@ -52,6 +52,11 @@ You also can use credentials for `root` user for development and tests.
 
 ## Usage
 
+To store the data from file to table, run the next command:
 ```
 node index.js
+```
+To reset the data from table, run the next command:
+```
+node reset.js
 ```
