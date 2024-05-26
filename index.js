@@ -55,18 +55,20 @@ fs.readFile(xmlFile, (err, data) => {
 			dataToStore.push(shopperApprovedFeed);
 		 });
 		console.log('Data extracted.');
-		// Store data in MySQL database
-		dataToStore.forEach((merchantData) => {
-			db.query(`INSERT INTO shopper_approved_feed SET ?`, merchantData, (err, results) => {
-				if (err) {
-					console.error(err);
-				} else {
-					return;
-				}
-			});
-		})
-		console.log('Data stored successfully!');
+		storeData(dataToStore, 'shopper_approved_feed');
  	});
 	db.end();
 	console.log('DB connection is closed.');
  });
+
+// Store data in MySQL database
+ function storeData(data, table) {
+	 data.forEach((merchantData) => {
+		 db.query(`INSERT INTO ${table} SET ?`, merchantData, (err) => {
+			 if (err) {
+				 console.error(err);
+			 }
+		 });
+	 });
+	 console.log(`Data stored to ${table} table successfully!`);
+ }
