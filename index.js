@@ -42,7 +42,7 @@ fs.readFile(xmlFile, (err, data) => {
 		
 		result.feed.merchants[0]['merchant'].forEach((merchant) => {
 			const shopperApprovedFeed = {
-				merchant_id: merchant['$']['id'],
+				merchant_id: parseInt(merchant['$']['id']),
 				name: merchant.name[0],
 				merchant_url: merchant.merchant_url[0],
 				rating_url: merchant.rating_url[0],
