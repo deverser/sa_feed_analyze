@@ -31,6 +31,24 @@ CREATE TABLE shopper_approved_feed(
 	PRIMARY KEY(id)
 );
 ```
+5. Create `sa_reviews_feed` table:
+```
+CREATE TABLE sa_reviews_feed( 
+	id INT AUTO_INCREMENT, 
+	review_id INT, 
+	merchant_id INT, 
+	reviewer_name VARCHAR(50), 
+	create_timestamp TIMESTAMP, 
+	last_update_timestamp TIMESTAMP, 
+	country_code CHAR(2), 
+	content TEXT, 
+	merchant_response TEXT, 
+	ratings FLOAT(2), 
+	collection_method VARCHAR(30), 
+	verified_purchase BOOL, 
+	PRIMARY KEY(id) 
+);
+```
 
 ## Install
 
