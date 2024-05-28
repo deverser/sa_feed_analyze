@@ -11,19 +11,24 @@ const dbConfig = {
 
 const db = mysql.createConnection(dbConfig);
 
+function cleanTable(tableName) {
+	db.query(`DELETE FROM ${tableName};`, (err) => {
+		if (err) {
+			console.error(err);
+		} else {
+			console.log(`${tableName} table is cleared!`);
+		}
+	});
+}
+
 // Connect to MySQL
 db.connect((err) => {
 	if (err) throw err;
 	console.log('Connected to MySQL database');
 });
 
-db.query(`DELETE FROM shopper_approved_feed;`, (err) => {
-	if (err) {
-		console.error(err);
-	} else {
-		console.log('shopper_approved_feed table is cleared!');
-	}
-});
+cleanTable('shopper_approved_feed');
+cleanTable('sa_reviews_feed');
 
 db.end();
 console.log('DB connection is closed.');
