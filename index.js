@@ -51,11 +51,38 @@ fs.readFile(xmlFile, (err, data) => {
 				create_timestamp: new Date(merchant.create_timestamp[0]),
 				last_update_timestamp: new Date(merchant.last_update_timestamp[0]),
 			};
-			console.log('SA_feed:', shopperApprovedFeed);
+			//console.log('SA_feed:', shopperApprovedFeed);
 			dataToStore.push(shopperApprovedFeed);
 		 });
+
+		 const reviewsData = [];
+		 
+		 result.feed.reviews[0]['review'].forEach((review) => {
+			 let ratings;
+			 if (review.ratings[0]['overall'][0]['_'] === undefined) {
+				 ratings = null;
+			 } else {
+				 ratings = parseFloat(review.ratings[0]['overall'][0]['_']);
+			 }
+			const reviewsSaFeed = {
+				review_id: parseInt(review['$'].id),
+				merchant_id: parseInt(review['$'].mid),
+				reviewer_name: review.reviewer_name[0],
+				create_timestamp: new Date(review.create_timestamp[0]),
+				last_update_timestamp: new Date(review.last_update_timestamp[0]),
+				country_code: review.country_code[0],
+				content: review.content[0],
+				merchant_response: review.merchant_response[0],
+				ratings: ratings,
+				collection_method: review.collection_method[0],
+				verified_purchase: parseInt(review.verified_purchase[0])
+			};
+			reviewsData.push(reviewsSaFeed);
+		 });
+		//console.log('reviews: ', reviewsData);
 		console.log('Data extracted.');
 		storeData(dataToStore, 'shopper_approved_feed');
+		storeData(reviewsData, 'sa_reviews_feed');
  	});
 	db.end();
 	console.log('DB connection is closed.');
