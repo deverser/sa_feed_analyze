@@ -38,10 +38,10 @@ fs.readFile(xmlFile, (err, data) => {
 		}
 
 		// Extract relevant data from XML
-		const dataToStore = [];
+		const merchantsData = [];
 		
 		result.feed.merchants[0]['merchant'].forEach((merchant) => {
-			const shopperApprovedFeed = {
+			const merchantsSaFeed = {
 				merchant_id: parseInt(merchant['$']['id']),
 				name: merchant.name[0],
 				merchant_url: merchant.merchant_url[0],
@@ -51,8 +51,8 @@ fs.readFile(xmlFile, (err, data) => {
 				create_timestamp: new Date(merchant.create_timestamp[0]),
 				last_update_timestamp: new Date(merchant.last_update_timestamp[0]),
 			};
-			//console.log('SA_feed:', shopperApprovedFeed);
-			dataToStore.push(shopperApprovedFeed);
+			//console.log('SA_feed:', merchantsSaFeed);
+			merchantsData.push(merchantsSaFeed);
 		 });
 
 		 const reviewsData = [];
@@ -81,7 +81,7 @@ fs.readFile(xmlFile, (err, data) => {
 		 });
 		//console.log('reviews: ', reviewsData);
 		console.log('Data extracted.');
-		storeData(dataToStore, 'shopper_approved_feed');
+		storeData(merchantsData, 'shopper_approved_feed');
 		storeData(reviewsData, 'sa_reviews_feed');
  	});
 	db.end();
