@@ -26,6 +26,7 @@ CREATE TABLE shopper_approved_feed(
 	rating_url VARCHAR(200),
 	merchant_rating FLOAT(2),
 	review_count INT,
+	removed BOOL,
 	create_timestamp TIMESTAMP,
 	last_update_timestamp TIMESTAMP,
 	PRIMARY KEY(id)
@@ -46,6 +47,7 @@ CREATE TABLE sa_reviews_feed(
 	ratings FLOAT(2), 
 	collection_method VARCHAR(30), 
 	verified_purchase BOOL, 
+	removed BOOL,
 	PRIMARY KEY(id) 
 );
 ```

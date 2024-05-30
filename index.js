@@ -48,12 +48,24 @@ fs.readFile(xmlFile, (err, data) => {
 				rating_url: merchant.rating_url[0],
 				merchant_rating: parseFloat(merchant.merchant_rating),
 				review_count: parseInt(merchant.review_count, 10),
+				removed: false,
 				create_timestamp: new Date(merchant.create_timestamp[0]),
 				last_update_timestamp: new Date(merchant.last_update_timestamp[0]),
 			};
 			//console.log('SA_feed:', merchantsSaFeed);
 			merchantsData.push(merchantsSaFeed);
 		 });
+
+		 result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
+			const delMerchantsFeed = {
+				merchant_id: parseInt(deleted['$'].id),
+				last_update_timestamp: new Date(deleted.last_update_timestamp[0]),
+				removed: true,
+			};
+			//console.log('del_merchant', delMerchantsFeed);
+			merchantsData.push(delMerchantsFeed);
+		 });
+		 storeData(merchantsData, 'shopper_approved_feed');
 
 		 const reviewsData = [];
 		 
@@ -70,6 +82,7 @@ fs.readFile(xmlFile, (err, data) => {
 				reviewer_name: review.reviewer_name[0],
 				create_timestamp: new Date(review.create_timestamp[0]),
 				last_update_timestamp: new Date(review.last_update_timestamp[0]),
+				removed: false,
 				country_code: review.country_code[0],
 				content: review.content[0],
 				merchant_response: review.merchant_response[0],
@@ -81,7 +94,6 @@ fs.readFile(xmlFile, (err, data) => {
 		 });
 		//console.log('reviews: ', reviewsData);
 		console.log('Data extracted.');
-		storeData(merchantsData, 'shopper_approved_feed');
 		storeData(reviewsData, 'sa_reviews_feed');
  	});
 	db.end();
