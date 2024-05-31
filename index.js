@@ -55,7 +55,9 @@ fs.readFile(xmlFile, (err, data) => {
 			//console.log('SA_feed:', merchantsSaFeed);
 			merchantsData.push(merchantsSaFeed);
 		 });
+		 storeData(merchantsData, 'shopper_approved_feed');
 
+		 const delMerchantsData = [];
 		 result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
 			const delMerchantsFeed = {
 				merchant_id: parseInt(deleted['$'].id),
@@ -63,9 +65,9 @@ fs.readFile(xmlFile, (err, data) => {
 				removed: true,
 			};
 			//console.log('del_merchant', delMerchantsFeed);
-			merchantsData.push(delMerchantsFeed);
+			delMerchantsData.push(delMerchantsFeed);
 		 });
-		 storeData(merchantsData, 'shopper_approved_feed');
+		 storeData(delMerchantsData, 'deleted_merchants');
 
 		 const reviewsData = [];
 		 
