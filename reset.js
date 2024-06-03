@@ -29,6 +29,7 @@ db.connect((err) => {
 
 cleanTable('sa_merchants_feed');
 cleanTable('sa_reviews_feed');
+cleanTable('deleted_merchants');
 
 db.end();
 console.log('DB connection is closed.');
