@@ -55,7 +55,7 @@ fs.readFile(xmlFile, (err, data) => {
 			//console.log('SA_feed:', merchantsSaFeed);
 			merchantsData.push(merchantsSaFeed);
 		 });
-		 storeData(merchantsData, 'shopper_approved_feed');
+		 storeData(merchantsData, 'sa_merchants_feed');
 
 		 const delMerchantsData = [];
 		 result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
