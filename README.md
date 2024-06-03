@@ -16,40 +16,9 @@ mysql -u root
 CREATE DATABASE sa_analyze;
 USE sa_analyze;
 ```
-4. Create `shopper_approved_feed` table:
+4. In project's directory run the next command to quick setup all the necessary tables in db:
 ```
-CREATE TABLE shopper_approved_feed(
-	id INT AUTO_INCREMENT,
-	merchant_id INT,
-	name VARCHAR(100),
-	merchant_url VARCHAR(200),
-	rating_url VARCHAR(200),
-	merchant_rating FLOAT(2),
-	review_count INT,
-	removed BOOL,
-	create_timestamp TIMESTAMP,
-	last_update_timestamp TIMESTAMP,
-	PRIMARY KEY(id)
-);
-```
-5. Create `sa_reviews_feed` table:
-```
-CREATE TABLE sa_reviews_feed( 
-	id INT AUTO_INCREMENT, 
-	review_id INT, 
-	merchant_id INT, 
-	reviewer_name VARCHAR(50), 
-	create_timestamp TIMESTAMP, 
-	last_update_timestamp TIMESTAMP, 
-	country_code CHAR(2), 
-	content TEXT, 
-	merchant_response TEXT, 
-	ratings FLOAT(2), 
-	collection_method VARCHAR(30), 
-	verified_purchase BOOL, 
-	removed BOOL,
-	PRIMARY KEY(id) 
-);
+node init.js
 ```
 
 ## Install
