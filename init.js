@@ -52,6 +52,15 @@ const deletedMerchants = `CREATE TABLE deleted_merchants(
 	PRIMARY KEY(id)
 )`;
 
+const deletedReviews = `CREATE TABLE deleted_reviews(
+	id INT AUTO_INCREMENT,
+	merchant_id INT,
+	review_id INT,
+	removed BOOL,
+	last_update_timestamp TIMESTAMP,
+	PRIMARY KEY(id)
+)`;
+
 function setUpTable(tableConfig) {
 	db.query(tableConfig, (err) => {
 	if (err) {
@@ -65,4 +74,5 @@ function setUpTable(tableConfig) {
 setUpTable(shopperApprovedFeed);
 setUpTable(saReviewsFeed);
 setUpTable(deletedMerchants);
+setUpTable(deletedReviews);
 db.end();
