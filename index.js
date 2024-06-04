@@ -98,6 +98,11 @@ fs.readFile(xmlFile, (err, data) => {
 					 collection_method: review.collection_method[0],
 					 verified_purchase: parseInt(review.verified_purchase[0])
 				 };
+				 result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
+					 if (reviewsSaFeed.merchant_id === parseInt(deleted['$'].id)) {
+						 reviewsSaFeed.removed = true;
+					 }
+				 });
 				 reviewsData.push(reviewsSaFeed);
 			 });
 		 }
