@@ -52,6 +52,11 @@ fs.readFile(xmlFile, (err, data) => {
 					create_timestamp: new Date(merchant.create_timestamp[0]),
 					last_update_timestamp: new Date(merchant.last_update_timestamp[0]),
 				};
+				result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
+					if (merchantsSaFeed.merchant_id === parseInt(deleted['$'].id)) {
+						merchantsSaFeed.removed = true;
+					}
+				});
 				//console.log('SA_feed:', merchantsSaFeed);
 				merchantsData.push(merchantsSaFeed);
 			});
