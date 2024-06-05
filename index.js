@@ -128,18 +128,28 @@ fs.readFile(xmlFile, (err, data) => {
 		storeData(delMerchantsData, 'deleted_merchants');
 		storeData(delReviewsData, 'deleted_reviews');
  	});
-	db.end();
+	//db.end();
 	console.log('DB connection is closed.');
  });
 
 // Store data in MySQL database
  function storeData(data, table) {
 	 data.forEach((merchantData) => {
-		 db.query(`INSERT INTO ${table} SET ?`, merchantData, (err) => {
+		 const { merchant_id } = merchantData;
+		 db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE merchant_id = ?`, [merchant_id], (err, results) => {
 			 if (err) {
 				 console.error(err);
+				 return;
 			 }
-		 });
-	 });
+			 const count = results[0].count;
+			 if (count === 0) {
+		 			db.query(`INSERT INTO ${table} SET ?`, merchantData, (err) => {
+			 	if (err) {
+				 	console.error(err);
+			 	}
+			});
+		  }
+	   });
+	});
 	 console.log(`Data stored to ${table} table successfully!`);
  }
