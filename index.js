@@ -116,10 +116,10 @@ async function main() {
 		}
 
 		console.log('Data extracted.');
-		await storeData(db, merchantsData, 'sa_merchants_feed');
-		await storeData(db, reviewsData, 'sa_reviews_feed');
-		await storeData(db, delMerchantsData, 'deleted_merchants');
-		await storeData(db, delReviewsData, 'deleted_reviews');
+		await storeData(db, merchantsData, 'merchant_id', 'sa_merchants_feed');
+		await storeData(db, reviewsData, 'review_id', 'sa_reviews_feed');
+		await storeData(db, delMerchantsData, 'merchant_id', 'deleted_merchants');
+		await storeData(db, delReviewsData, 'review_id', 'deleted_reviews');
 	} catch (parseErr) {
 		console.error('Error reading XML data:', parseErr);
 	}
@@ -129,18 +129,31 @@ async function main() {
 }
 
 // Store data in MySQL database
- async function storeData(db, data, table) {
+ async function storeData(db, data, id, table) {
 	 for (const merchantData of data) {
-		 const { merchant_id } = merchantData;
-		 try {
-			 const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE merchant_id = ?`, [merchant_id]);
-			 const count = results[0].count;
-			 if (count === 0) {
-				 await db.query(`INSERT INTO ${table} SET ?`, merchantData);
-			 }
-		 } catch(err) {
-			console.error(err);
-		 }
+		if (id === 'review_id') {
+			const { review_id } = merchantData;
+			try {
+				const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${id} = ?`, [review_id]);
+				const count = results[0].count;
+				if (count === 0) {
+					await db.query(`INSERT INTO ${table} SET ?`, merchantData);
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		} else {
+			const { merchant_id } = merchantData;
+			try {
+				const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${id} = ?`, [merchant_id]);
+				const count = results[0].count;
+				if (count === 0) {
+					await db.query(`INSERT INTO ${table} SET ?`, merchantData);
+				}
+			} catch(err) {
+				console.error(err);
+			}
+		}
 	}
 	console.log(`Data stored to ${table} table successfully!`);
  }
