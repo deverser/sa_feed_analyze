@@ -1,6 +1,6 @@
 const fs = require('fs');
 const xml2js = require('xml2js');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 // Set up MySQL connection
 const dbConfig = {
@@ -10,32 +10,25 @@ const dbConfig = {
 	database: 'sa_analyze'
 };
 
-const db = mysql.createConnection(dbConfig);
+async function main() {
+	const db = await mysql.createConnection(dbConfig);
 
-// Connect to MySQL
-db.connect((err) => {
-	if (err) throw err;
 	console.log('Connected to MySQL database');
-});
 
+	// Set up XML parser
+	const parser = new xml2js.Parser();
 
-// Set up XML parser
-const parser = new xml2js.Parser();
-
-// Read XML file
-const xmlFile = 'feeds/20201103-0_2-21101.xml';
-fs.readFile(xmlFile, (err, data) => {
-	if (err) {
-		console.error('Error opening file:', err);
-		return;
-	}
-
-	// Parse XML data
-	parser.parseString(data, (err, result) => {
+	// Read XML file
+	const xmlFile = 'feeds/20201103-0_2-21101.xml';
+	fs.readFile(xmlFile, async (err, data) => {
 		if (err) {
-			console.error('Error reading XML data:', err);
+			console.error('Error opening file:', err);
 			return;
 		}
+
+		// Parse XML data
+		try {
+			const result = await parser.parseStringPromise(data);
 
 		// Extract relevant data from XML
 		const merchantsData = [];
@@ -123,33 +116,35 @@ fs.readFile(xmlFile, (err, data) => {
 		}
 
 		console.log('Data extracted.');
-		storeData(merchantsData, 'sa_merchants_feed');
-		storeData(reviewsData, 'sa_reviews_feed');
-		storeData(delMerchantsData, 'deleted_merchants');
-		storeData(delReviewsData, 'deleted_reviews');
- 	});
-	//db.end();
+		await storeData(db, merchantsData, 'sa_merchants_feed');
+		await storeData(db, reviewsData, 'sa_reviews_feed');
+		await storeData(db, delMerchantsData, 'deleted_merchants');
+		await storeData(db, delReviewsData, 'deleted_reviews');
+	} catch (parseErr) {
+		console.error('Error reading XML data:', parseErr);
+	}
+	await db.end();
 	console.log('DB connection is closed.');
  });
+}
 
 // Store data in MySQL database
- function storeData(data, table) {
-	 data.forEach((merchantData) => {
+ async function storeData(db, data, table) {
+	 for (const merchantData of data) {
 		 const { merchant_id } = merchantData;
-		 db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE merchant_id = ?`, [merchant_id], (err, results) => {
-			 if (err) {
-				 console.error(err);
-				 return;
-			 }
+		 try {
+			 const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE merchant_id = ?`, [merchant_id]);
 			 const count = results[0].count;
 			 if (count === 0) {
-		 			db.query(`INSERT INTO ${table} SET ?`, merchantData, (err) => {
-			 	if (err) {
-				 	console.error(err);
-			 	}
-			});
-		  }
-	   });
-	});
-	 console.log(`Data stored to ${table} table successfully!`);
+				 await db.query(`INSERT INTO ${table} SET ?`, merchantData);
+			 }
+		 } catch(err) {
+			console.error(err);
+		 }
+	}
+	console.log(`Data stored to ${table} table successfully!`);
  }
+
+ main().catch(err => {
+	console.error('Error in main function:', err);
+ });
