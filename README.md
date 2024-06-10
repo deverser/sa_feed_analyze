@@ -27,7 +27,7 @@ node init.js
 npm install
 ```
 1. After installation of required packages, place 'shopper approved' feed `.xml` files in `feeds/` directory.
-2. In the code add the path to feed file in `xmlFile` variable.
+2. In the code add the filenames of the feed files located in `feeds/` folder in `xmlFile = []` variable.
 3. Add configuration for MySQL connection in `dbConfig`:
 ```
  const dbConfig = {

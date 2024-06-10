@@ -10,7 +10,12 @@ const dbConfig = {
 	database: 'sa_analyze'
 };
 
-async function main() {
+// List of XML filenames located in 'feeds/' directory.
+const xmlFile = ['20190101-0_2-25321.xml',
+				 '20201003-0_2-12954.xml',
+				 '20201103-0_2-21101.xml'];
+
+async function main(file) {
 	const db = await mysql.createConnection(dbConfig);
 
 	console.log('Connected to MySQL database');
@@ -19,8 +24,7 @@ async function main() {
 	const parser = new xml2js.Parser();
 
 	// Read XML file
-	const xmlFile = 'feeds/20201103-0_2-21101.xml';
-	fs.readFile(xmlFile, async (err, data) => {
+	fs.readFile('feeds/' + file, async (err, data) => {
 		if (err) {
 			console.error('Error opening file:', err);
 			return;
@@ -158,6 +162,8 @@ async function main() {
 	console.log(`Data stored to ${table} table successfully!`);
  }
 
- main().catch(err => {
+
+
+ xmlFile.forEach((file) => main(file).catch(err => {
 	console.error('Error in main function:', err);
- });
+ }));
