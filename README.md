@@ -41,11 +41,13 @@ You also can use credentials for `root` user for development and tests.
 
 ## Usage
 
-To store the data from file to table, run the next command:
+Everytime before using this app you should run your mysql docker container.
+
+After that to store the data from file to tables, run the next command:
 ```
 node index.js
 ```
-To reset the data from table, run the next command:
+To reset the data from tables, run the next command:
 ```
 node reset.js
 ```
