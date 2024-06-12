@@ -11,9 +11,10 @@ const dbConfig = {
 };
 
 // List of XML filenames located in 'feeds/' directory.
-const xmlFile = ['20190101-0_2-25321.xml',
-				 '20201003-0_2-12954.xml',
-				 '20201103-0_2-21101.xml'];
+const xmlFile = [	'20190101-0_2-25321.xml',
+				 	'20201003-0_2-12954.xml',
+				 	'20201103-0_2-21101.xml'
+				 								];
 
 async function main(file) {
 	const db = await mysql.createConnection(dbConfig);
@@ -39,21 +40,15 @@ async function main(file) {
 		if (typeof (result.feed.merchants[0]['merchant']) == 'object') {
 			result.feed.merchants[0]['merchant'].forEach((merchant) => {
 				const merchantsSaFeed = {
-					merchant_id: parseInt(merchant['$']['id']),
+					id: parseInt(merchant['$']['id']),
 					name: merchant.name[0],
 					merchant_url: merchant.merchant_url[0],
 					rating_url: merchant.rating_url[0],
 					merchant_rating: parseFloat(merchant.merchant_rating),
 					review_count: parseInt(merchant.review_count, 10),
-					removed: false,
 					create_timestamp: new Date(merchant.create_timestamp[0]),
 					last_update_timestamp: new Date(merchant.last_update_timestamp[0]),
 				};
-				result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
-					if (merchantsSaFeed.merchant_id === parseInt(deleted['$'].id)) {
-						merchantsSaFeed.removed = true;
-					}
-				});
 				//console.log('SA_feed:', merchantsSaFeed);
 				merchantsData.push(merchantsSaFeed);
 			});
@@ -65,7 +60,6 @@ async function main(file) {
 				const delMerchantsFeed = {
 					merchant_id: parseInt(deleted['$'].id),
 					last_update_timestamp: new Date(deleted.last_update_timestamp[0]),
-					removed: true,
 				};
 				//console.log('del_merchant', delMerchantsFeed);
 				delMerchantsData.push(delMerchantsFeed);
@@ -87,7 +81,6 @@ async function main(file) {
 					 reviewer_name: review.reviewer_name[0],
 					 create_timestamp: new Date(review.create_timestamp[0]),
 					 last_update_timestamp: new Date(review.last_update_timestamp[0]),
-					 removed: false,
 					 country_code: review.country_code[0],
 					 content: review.content[0],
 					 merchant_response: review.merchant_response[0],
@@ -95,11 +88,6 @@ async function main(file) {
 					 collection_method: review.collection_method[0],
 					 verified_purchase: parseInt(review.verified_purchase[0])
 				 };
-				 result.feed.deleted_merchants[0]['deleted_merchant'].forEach((deleted) => {
-					 if (reviewsSaFeed.merchant_id === parseInt(deleted['$'].id)) {
-						 reviewsSaFeed.removed = true;
-					 }
-				 });
 				 reviewsData.push(reviewsSaFeed);
 			 });
 		 }
@@ -112,7 +100,6 @@ async function main(file) {
 					merchant_id: parseInt(deleted['$'].mid),
 					review_id: parseInt(deleted['$'].id),
 					last_update_timestamp: new Date(deleted.last_update_timestamp[0]),
-					removed: true,
 				};
 				//console.log('del_review', delReviewsFeed);
 				delReviewsData.push(delReviewsFeed);
@@ -120,10 +107,10 @@ async function main(file) {
 		}
 
 		console.log('Data extracted.');
-		await storeData(db, merchantsData, 'merchant_id', 'sa_merchants_feed');
-		await storeData(db, reviewsData, 'review_id', 'sa_reviews_feed');
-		await storeData(db, delMerchantsData, 'merchant_id', 'deleted_merchants');
-		await storeData(db, delReviewsData, 'review_id', 'deleted_reviews');
+		await storeData(db, merchantsData, 'merchants');
+		await storeData(db, reviewsData, 'reviews');
+		await storeData(db, delMerchantsData, 'deleted_merchants');
+		await storeData(db, delReviewsData, 'deleted_reviews');
 	} catch (parseErr) {
 		console.error('Error reading XML data:', parseErr);
 	}
@@ -133,32 +120,14 @@ async function main(file) {
 }
 
 // Store data in MySQL database
- async function storeData(db, data, id, table) {
-	 for (const merchantData of data) {
-		if (id === 'review_id') {
-			const { review_id } = merchantData;
-			try {
-				const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${id} = ?`, [review_id]);
-				const count = results[0].count;
-				if (count === 0) {
-					await db.query(`INSERT INTO ${table} SET ?`, merchantData);
-				}
-			} catch (err) {
-				console.error(err);
-			}
-		} else {
-			const { merchant_id } = merchantData;
-			try {
-				const [results] = await db.query(`SELECT COUNT(*) AS count FROM ${table} WHERE ${id} = ?`, [merchant_id]);
-				const count = results[0].count;
-				if (count === 0) {
-					await db.query(`INSERT INTO ${table} SET ?`, merchantData);
-				}
-			} catch(err) {
-				console.error(err);
-			}
-		}
-	}
+ async function storeData(db, data, table) {
+	 data.forEach(async (merchantData) => {
+	            try {
+					await db.query(`INSERT INTO ${table} SET ?`, merchantData)
+				} catch (err) {
+							console.error(err);
+					}
+	 })
 	console.log(`Data stored to ${table} table successfully!`);
  }
 
