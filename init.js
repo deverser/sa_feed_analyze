@@ -13,22 +13,19 @@ const dbConfig = {
 
 const db = mysql.createConnection(dbConfig);
 
-const shopperApprovedFeed = `CREATE TABLE sa_merchants_feed(
-	id INT AUTO_INCREMENT,
-	merchant_id INT,
+const merchantsTable = `CREATE TABLE merchants(
+	id INT,
 	name VARCHAR(100),
 	merchant_url VARCHAR(200),
 	rating_url VARCHAR(200),
 	merchant_rating FLOAT(2),
 	review_count INT,
-	removed BOOL,
 	create_timestamp TIMESTAMP,
 	last_update_timestamp TIMESTAMP,
 	PRIMARY KEY(id)
 );`;
 
-const saReviewsFeed = `CREATE TABLE sa_reviews_feed( 
-	id INT AUTO_INCREMENT, 
+const reviewsTable = `CREATE TABLE reviews( 
 	review_id INT, 
 	merchant_id INT, 
 	reviewer_name VARCHAR(50), 
@@ -40,25 +37,21 @@ const saReviewsFeed = `CREATE TABLE sa_reviews_feed(
 	ratings FLOAT(2), 
 	collection_method VARCHAR(30), 
 	verified_purchase BOOL, 
-	removed BOOL,
-	PRIMARY KEY(id) 
+	PRIMARY KEY(review_id),
+	FOREIGN KEY (merchant_id) REFERENCES merchants(id) ON DELETE CASCADE
 );`;
 
 const deletedMerchants = `CREATE TABLE deleted_merchants(
-	id INT AUTO_INCREMENT,
 	merchant_id INT,
-	removed BOOL,
 	last_update_timestamp TIMESTAMP,
-	PRIMARY KEY(id)
+	PRIMARY KEY(merchant_id)
 )`;
 
 const deletedReviews = `CREATE TABLE deleted_reviews(
-	id INT AUTO_INCREMENT,
 	merchant_id INT,
 	review_id INT,
-	removed BOOL,
 	last_update_timestamp TIMESTAMP,
-	PRIMARY KEY(id)
+	PRIMARY KEY(review_id)
 )`;
 
 function setUpTable(tableConfig) {
@@ -71,8 +64,8 @@ function setUpTable(tableConfig) {
 });
 }
 
-setUpTable(shopperApprovedFeed);
-setUpTable(saReviewsFeed);
+setUpTable(merchantsTable);
+setUpTable(reviewsTable);
 setUpTable(deletedMerchants);
 setUpTable(deletedReviews);
 db.end();

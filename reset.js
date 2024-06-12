@@ -27,8 +27,8 @@ db.connect((err) => {
 	console.log('Connected to MySQL database');
 });
 
-cleanTable('sa_merchants_feed');
-cleanTable('sa_reviews_feed');
+cleanTable('merchants');
+cleanTable('reviews');
 cleanTable('deleted_merchants');
 cleanTable('deleted_reviews');
 
