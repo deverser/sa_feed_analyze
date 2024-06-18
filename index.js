@@ -134,7 +134,7 @@ async function processFile(db, file) {
 
 async function storeData(db, data, table) {
 	try {
-		const chunkSize = 500;
+		const chunkSize = 2000;
 		for (let i = 0; i < data.length; i += chunkSize) {
 			const chunk = data.slice(i, i + chunkSize);
 			const promises = chunk.map((record) =>
