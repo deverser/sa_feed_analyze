@@ -6,10 +6,10 @@ const path = require('path');
 
 // Set up MySQL connection using environment variables
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME
 };
 
 const feedsPath = getFeedsPath();
@@ -132,18 +132,29 @@ async function processFile(db, file) {
 	}
 }
 
-// Store data in MySQL database
 async function storeData(db, data, table) {
-	data.forEach(async (merchantData) => {
-		try {
-			await db.query(`INSERT INTO ${table} SET ?`, merchantData);
-		} catch (err) {
-			if (err.code !== 'ER_DUP_ENTRY') {
-				console.error(err);
-			}
+	try {
+		const chunkSize = 500;
+		for (let i = 0; i < data.length; i += chunkSize) {
+			const chunk = data.slice(i, i + chunkSize);
+			const promises = chunk.map((record) =>
+				db.query(`INSERT IGNORE INTO ${table} SET ?`, record)
+			);
+			await Promise.all(promises);
 		}
-	});
-	// console.log(`Data stored to ${table} table successfully!`);
+
+		// Insert any remaining records (less than chunkSize) in the last chunk
+		const remainingRecords = data.length % chunkSize;
+		if (remainingRecords > 0) {
+			const lastChunk = data.slice(data.length - remainingRecords);
+			const promisesLast = lastChunk.map((record) =>
+				db.query(`INSERT IGNORE INTO ${table} SET ?`, record)
+			);
+			await Promise.all(promisesLast);
+		}
+	} catch (err) {
+		console.error(err);
+	}
 }
 
 // Example usage: Get sorted XML files and process each one
