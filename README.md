@@ -28,16 +28,9 @@ npm install
 ```
 1. After installation of required packages, place 'shopper approved' feed `.xml` files in `feeds/` directory.
 2. In the code add the filenames of the feed files located in `feeds/` folder in `xmlFile = []` variable.
-3. Add configuration for MySQL connection in `dbConfig`:
-```
- const dbConfig = {
-	host: 'your_host',
-	user: 'user_login',
-	password: 'user_password',
-	database: 'sa_analyze'
-};
-```
-You also can use credentials for `root` user for development and tests.
+3. Create a `.env` using the `.env.example` template and complete with the correct DB configuration.
+
+Credentials on the example are useful for local testing.
 
 ## Usage
 

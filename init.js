@@ -1,14 +1,14 @@
 // This file should be used before the first run of the app. It sets up all neccessary tables for shopper approved feeds in db by one click.
 
+require('dotenv').config();
 const mysql = require('mysql2');
 
-
-// Set up MySQL connection
+// Set up MySQL connection using environment variables
 const dbConfig = {
-	host: 'localhost',
-	user: 'root',
-	password: '',
-	database: 'sa_analyze'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 };
 
 const db = mysql.createConnection(dbConfig);
