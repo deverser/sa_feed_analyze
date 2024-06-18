@@ -10,6 +10,15 @@ const dbConfig = {
 	database: 'sa_analyze'
 };
 
+// Check if the path is provided as a command line argument
+if (process.argv.length < 3) {
+  console.error('Please provide a path as an argument.');
+  process.exit(1);
+}
+
+// Get the path from the command line arguments
+const feedsPath = process.argv[2];
+
 // List of XML filenames located in 'feeds/' directory.
 const xmlFile = [	'20190101-0_2-25321.xml',
 				 	'20201003-0_2-12954.xml',
@@ -25,7 +34,7 @@ async function main(file) {
 	const parser = new xml2js.Parser();
 
 	// Read XML file
-	fs.readFile('feeds/' + file, async (err, data) => {
+	fs.readFile(feedsPath + file, async (err, data) => {
 		if (err) {
 			console.error('Error opening file:', err);
 			return;
