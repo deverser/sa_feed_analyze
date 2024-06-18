@@ -76,7 +76,7 @@ async function main(file) {
 					 ratings = parseFloat(review.ratings[0]['overall'][0]['_']);
 				 }
 				 const reviewsSaFeed = {
-					 review_id: parseInt(review['$'].id),
+					 id: parseInt(review['$'].id),
 					 merchant_id: parseInt(review['$'].mid),
 					 reviewer_name: review.reviewer_name[0],
 					 create_timestamp: new Date(review.create_timestamp[0]),
@@ -120,19 +120,19 @@ async function main(file) {
 }
 
 // Store data in MySQL database
- async function storeData(db, data, table) {
-	 data.forEach(async (merchantData) => {
-	            try {
-					await db.query(`INSERT INTO ${table} SET ?`, merchantData)
-				} catch (err) {
-							console.error(err);
-					}
-	 })
+async function storeData(db, data, table) {
+	data.forEach(async (merchantData) => {
+		try {
+			await db.query(`INSERT INTO ${table} SET ?`, merchantData)
+		} catch (err) {
+			if (err.code !== 'ER_DUP_ENTRY') {
+				console.error(err);
+			}
+		}
+	})
 	console.log(`Data stored to ${table} table successfully!`);
- }
+}
 
-
-
- xmlFile.forEach((file) => main(file).catch(err => {
+xmlFile.forEach((file) => main(file).catch(err => {
 	console.error('Error in main function:', err);
- }));
+}));

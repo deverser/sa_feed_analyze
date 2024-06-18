@@ -26,7 +26,7 @@ const merchantsTable = `CREATE TABLE merchants(
 );`;
 
 const reviewsTable = `CREATE TABLE reviews( 
-	review_id INT, 
+	id INT, 
 	merchant_id INT, 
 	reviewer_name VARCHAR(50), 
 	create_timestamp TIMESTAMP, 
@@ -37,7 +37,7 @@ const reviewsTable = `CREATE TABLE reviews(
 	ratings FLOAT(2), 
 	collection_method VARCHAR(30), 
 	verified_purchase BOOL, 
-	PRIMARY KEY(review_id),
+	PRIMARY KEY(id),
 	FOREIGN KEY (merchant_id) REFERENCES merchants(id) ON DELETE CASCADE
 );`;
 
