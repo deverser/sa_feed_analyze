@@ -1,6 +1,7 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const xml2js = require('xml2js');
 const mysql = require('mysql2/promise');
+const path = require('path');
 
 // Set up MySQL connection
 const dbConfig = {
@@ -19,30 +20,26 @@ if (process.argv.length < 3) {
 // Get the path from the command line arguments
 const feedsPath = process.argv[2];
 
-// List of XML filenames located in 'feeds/' directory.
-const xmlFile = [	'20190101-0_2-25321.xml',
-				 	'20201003-0_2-12954.xml',
-				 	'20201103-0_2-21101.xml'
-				 								];
+// Function to get XML files in ascending order
+async function getXmlFilesOrdered(feedsPath) {
+  try {
+    const files = await fs.readdir(feedsPath);
+    const xmlFiles = files
+      .filter(file => path.extname(file).toLowerCase() === '.xml')
+      .sort((a, b) => a.localeCompare(b)); // Sort files by name ascending
+    return xmlFiles;
+  } catch (err) {
+    throw new Error('Error reading directory: ' + err);
+  }
+}
 
-async function main(file) {
-	const db = await mysql.createConnection(dbConfig);
-
-	console.log('Connected to MySQL database');
-
+async function processFile(db, file) {
 	// Set up XML parser
-	const parser = new xml2js.Parser();
+  const parser = new xml2js.Parser();
 
-	// Read XML file
-	fs.readFile(feedsPath + file, async (err, data) => {
-		if (err) {
-			console.error('Error opening file:', err);
-			return;
-		}
-
-		// Parse XML data
-		try {
-			const result = await parser.parseStringPromise(data);
+  try {
+    const data = await fs.readFile(path.join(feedsPath, file));
+    const result = await parser.parseStringPromise(data);
 
 		// Extract relevant data from XML
 		const merchantsData = [];
@@ -115,7 +112,7 @@ async function main(file) {
 			});
 		}
 
-		console.log('Data extracted.');
+		// console.log('Data extracted.');
 		await storeData(db, merchantsData, 'merchants');
 		await storeData(db, reviewsData, 'reviews');
 		await storeData(db, delMerchantsData, 'deleted_merchants');
@@ -123,9 +120,6 @@ async function main(file) {
 	} catch (parseErr) {
 		console.error('Error reading XML data:', parseErr);
 	}
-	await db.end();
-	console.log('DB connection is closed.');
- });
 }
 
 // Store data in MySQL database
@@ -139,9 +133,30 @@ async function storeData(db, data, table) {
 			}
 		}
 	})
-	console.log(`Data stored to ${table} table successfully!`);
+	// console.log(`Data stored to ${table} table successfully!`);
 }
 
-xmlFile.forEach((file) => main(file).catch(err => {
-	console.error('Error in main function:', err);
-}));
+// Example usage: Get sorted XML files and process each one
+async function processXmlFiles() {
+  try {
+		const db = await mysql.createConnection(dbConfig);
+		console.log('Connected to MySQL database');
+
+    const xmlFiles = await getXmlFilesOrdered(feedsPath);
+    console.log('XML files to process:', xmlFiles.length);
+
+    // Process each XML file
+    for (const file of xmlFiles) {
+      await processFile(db, file);
+			console.log('Finished processing:', file);
+    }
+
+		await db.end();
+		console.log('DB connection is closed.');
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Call the function to start processing XML files
+processXmlFiles();
