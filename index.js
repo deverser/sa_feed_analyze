@@ -11,14 +11,19 @@ const dbConfig = {
 	database: 'sa_analyze'
 };
 
-// Check if the path is provided as a command line argument
-if (process.argv.length < 3) {
-  console.error('Please provide a path as an argument.');
-  process.exit(1);
-}
+const feedsPath = getFeedsPath();
 
-// Get the path from the command line arguments
-const feedsPath = process.argv[2];
+// Main function
+processXmlFiles();
+
+function getFeedsPath() {
+  if (process.argv.length < 3) {
+    console.error('Please provide a path as an argument.');
+    process.exit(1);
+  }
+
+  return process.argv[2];
+}
 
 // Function to get XML files in ascending order
 async function getXmlFilesOrdered(feedsPath) {
@@ -157,6 +162,3 @@ async function processXmlFiles() {
     console.error('Error:', error.message);
   }
 }
-
-// Call the function to start processing XML files
-processXmlFiles();
